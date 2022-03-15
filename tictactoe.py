@@ -9,7 +9,12 @@ class TicTacToe:
                      ['_','_','_']]
 
         self.player_turn = 'X'
+        self.count = 0
+        self.total_count = 0
 
+    '''
+    Draw the tic tac toe board
+    '''
     def draw(self):
         print ("")
         
@@ -23,6 +28,7 @@ class TicTacToe:
     This is the minimax minimizing algorithm
     '''
     def minimax_min(self, alpha, beta):
+        self.count += 1
         # the human player (x) is a min player
         # players are -1: win, 0: draw, +1: loss, its initial value is +2
 
@@ -79,6 +85,7 @@ class TicTacToe:
     This method is the minimax max algorithm
     '''
     def minimax_max(self, alpha, beta):
+        self.count += 1
         # the human player (x) is a min player
         # players are -1: win, 0: draw, +1: loss, its initial value is +2
 
@@ -91,6 +98,7 @@ class TicTacToe:
         # Check base case: is there a winner
         winner = self.game_over()
         
+        # check recursion base case
         if winner != None:
             if winner == 'X':
                 return(-1, 0, 0)
@@ -99,34 +107,41 @@ class TicTacToe:
             elif winner == '_':
                 return(0,0,0)
 
+        # set best_val
         best_val = -999
+
         # evaluate all possible plays
         for i in [0, 1, 2]:
             for j in [0, 1, 2]:
                 # if coordinate [i][j] is empty evaluate the play for the X player
-
                 if self.grid[i][j] == '_':
                     self.grid[i][j] = 'O'
                 
                 # minimax_max returns a tuple with the value of the final state
                     (value, min_i, min_j) = self.minimax_min(alpha, beta)
 
+                    # update best val and alpha value
                     best_val = max(best_val, value)
                     alpha = max(alpha, best_val)
 
+                    # check if you need to update
                     if value > max_value:
                         max_value = value
                         max_px = i
                         max_py = j
-                
+
+                    # reset grid
                     self.grid[i][j] = '_'
 
+                    # check for pruning
                     if beta <= alpha:
                         return(max_value, max_px, max_py) 
 
-        
         return(max_value, max_px, max_py) 
 
+    '''
+    This function validates the coordinates
+    '''
     def valid_coordinates(self, px, py):
         if px < 0 or px > 2 or py < 0 or py > 2:
             return False
@@ -135,6 +150,9 @@ class TicTacToe:
         else:
             return True
 
+    '''
+    Checks if the game is over
+    '''
     def game_over(self):
         # horizontal win: X player wins when ['X', 'X', 'X'] in rows 0 to 2
         
@@ -176,6 +194,9 @@ class TicTacToe:
         
         return '_'
 
+    '''
+    This method drives the game
+    '''
     def play(self):
         while True:
             self.draw()
@@ -185,6 +206,8 @@ class TicTacToe:
             # if the game is over
             
             if winner != None:
+                # print out total count
+                print('Total Count For the Game: ', self.total_count)
                 if winner == 'X':
                     print ("X player wins!")
                 elif winner == 'O':
@@ -215,33 +238,27 @@ class TicTacToe:
                 while True:
                     # implement minimax here
                     print('AI turn:')
+                    self.count = 0
 
+                    # set alpha beta initial values
                     alpha = -999
                     beta = 999
 
+                    # run minimax
                     value, px, py = self.minimax_max(alpha, beta)
 
-                    print('Value:', value, px, py)
+                    # print out the value found by minimax
+                    print('Minimax Value:', value)
 
+                    # validate coordinates
                     if self.valid_coordinates(px, py):
                         self.grid[px][py] = 'O'
                         self.player_turn = 'X'
+                        self.total_count += self.count
+                        print('AI Play Count', self.count)
                         break
                     else:
-                        print ("Coordinates are not valid! Play again")
-
-                    '''
-                    print ("Player O enter coordinates x y: ", end="")
-
-                    px, py = map(int, input().split())
-
-                    if self.valid_coordinates(px, py):
-                        self.grid[px][py] = 'O'
-                        self.player_turn = 'X'
-                        break
-                    else:
-                        print ("Coordinates are not valid! Play again")
-                    '''
+                        print ("Coordinates are not valid!")
 
 
 if __name__ == "__main__":
